@@ -1,0 +1,17 @@
+services:
+  airflow:
+    image: apache/airflow:2.10.5
+    container_name: atliq-airflow
+
+    ports:
+      - "8080:8080"
+
+    volumes:
+      - ./dags:/opt/airflow/dags
+
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      _PIP_ADDITIONAL_REQUIREMENTS: apache-airflow-providers-databricks
+
+    command: standalone
