@@ -1,62 +1,54 @@
 # AtliQ Commerce — End-to-End Data Engineering Capstone
 
-An end-to-end data engineering capstone project built as part of the Codebasics Data Engineering learning journey.
+An end-to-end data engineering capstone project covering **Batch Data Engineering** and **Real-Time Data Engineering**.
 
-This project demonstrates both **Batch Data Engineering** and **Real-Time Data Engineering**, using modern cloud data engineering technologies including Azure, Databricks, dbt, Microsoft Fabric, Kafka, Delta Lake, Structured Streaming, and Airflow.
+The project demonstrates ingestion, medallion architecture, transformation, data quality, incremental processing, idempotency, orchestration, analytics, streaming, and CI/CD.
 
 ---
 
-## 📌 Project Overview
+# 📌 Project Overview
 
-The project is divided into two complementary phases:
+This repository contains two complementary phases.
 
-### Phase 1 — End-to-End Batch Data Engineering
-
-A complete batch data platform that processes business data from source systems through ingestion, transformation, modeling, data quality, orchestration, and analytics.
-
-**Pipeline:**
+## Phase 1 — End-to-End Batch Data Engineering
 
 ```text
-Azure SQL
-    ↓
-Azure Data Factory
-    ↓
-ADLS Gen2
-    ↓
-Azure Databricks
-    ↓
-Bronze → Silver
-    ↓
-dbt Gold
-    ↓
-Microsoft Fabric / Power BI
+Azure SQL + CSV Business Data
+            ↓
+    Azure Data Factory
+            ↓
+         ADLS Gen2
+            ↓
+     Databricks Bronze
+            ↓
+     Databricks Silver
+            ↓
+          dbt Gold
+            ↓
+   Microsoft Fabric / Power BI
 ```
 
-### Phase 2 — Real-Time Data Engineering
+Phase 1 implements the complete batch data engineering lifecycle, including source ingestion, Bronze/Silver processing, dbt Gold modeling, data quality, nightly orchestration, idempotency validation, Fabric analytics, and GitHub Actions CI/CD.
 
-A real-time processing lane that produces order events and processes them through Kafka and Databricks Structured Streaming.
-
-**Pipeline:**
+## Phase 2 — Real-Time Data Engineering
 
 ```text
 Python Event Producer
         ↓
 Confluent Kafka
         ↓
-Kafka Topic
+atliq.orders.events
         ↓
 Databricks Structured Streaming
         ↓
-Bronze
-        ↓
-Silver
-        ↓
-Gold
+Bronze → Silver → Gold
         ↓
 5-Minute Revenue Windows
+
+Airflow → Quality Checks / OPTIMIZE / Daily Summary
 ```
 
-Airflow is used for scheduled operational checks and maintenance.
+Phase 2 adds a real-time processing lane using Kafka, Databricks Structured Streaming, Delta/Unity Catalog, and Airflow.
 
 ---
 
@@ -98,48 +90,273 @@ Location:
 Phase 1 End-to-End Batch Data Engineering_CB/
 ```
 
-## Pipeline
-
-```text
-Azure SQL
-    ↓
-Azure Data Factory
-    ↓
-ADLS Gen2
-    ↓
-Databricks Bronze
-    ↓
-Databricks Silver
-    ↓
-dbt Gold
-    ↓
-Microsoft Fabric / Power BI
-```
-
-## Technologies Used
+## Technology Stack
 
 - Azure SQL
 - Azure Data Factory
 - Azure Data Lake Storage Gen2
 - Azure Databricks
 - Delta Lake
-- dbt
+- dbt Core
 - Microsoft Fabric
 - Power BI
 - GitHub Actions
+- Python
+- SQL / PySpark
 
-## Key Components
+---
 
-- Source / OLTP in Azure SQL
-- Data ingestion using Azure Data Factory
-- Bronze and Silver processing in Databricks
-- Business-oriented Gold models using dbt
-- Data quality tests and validation
+# Phase 1 — Milestones
+
+| Milestone | Work Completed | Status |
+|---|---|---|
+| M1 — OLTP | Azure SQL schema, ETL control/watermark table, transaction simulator | ✅ Done |
+| M2 — Ingestion | Metadata-driven ADF SQL/CSV ingestion and orchestration | ✅ Done |
+| M3 — Silver | Databricks Bronze/Silver processing and incremental facts | ✅ Done |
+| M4 — Gold/dbt | dbt staging, intermediate and mart models + tests | ✅ Done |
+| M5 — Nightly Sync | Master orchestration, 2 AM trigger, retry/idempotency design | ✅ Done |
+| M6 — Fabric | Gold availability and executive dashboard | ✅ Done |
+| M7 — CI/CD | GitHub, GitHub Actions, dbt CI, pipeline audit logging | ✅ Done |
+
+---
+
+# 📁 Phase 1 Evidence
+
+All Phase 1 evidence is retained in the repository under:
+
+```text
+Phase 1 End-to-End Batch Data Engineering_CB/evidence/
+```
+
+The evidence is organized by milestone.
+
+## M1 — OLTP Evidence
+
+```text
+evidence/M1_OLTP/
+└── Screenshot 2026-09-05 010230.png
+```
+
+M1 covers:
+
+- Azure SQL operational schema
+- Customers
+- Products
+- Orders
+- Order items
+- Payments
+- ETL control/watermark mechanism
+- Daily transaction simulator
+
+Supporting implementation files include:
+
+```text
+sql/01_schema_ddl.sql
+sql/07_etl_control_table.sql
+python/daily_order_simulator.py
+```
+
+---
+
+## M2 — Azure Data Factory Evidence
+
+```text
+evidence/M2_ADF/
+├── pl_master_batch.json
+├── pl_master_batch.png
+├── pl_sql_to_adls.json
+├── pl_sql_to_adls.png
+├── pl_sql_to_raw.json
+└── pl_sql_to_raw.png
+```
+
+Evidence covers:
+
+- `pl_sql_to_raw`
+- `pl_sql_to_adls`
+- `pl_master_batch`
+- Metadata-driven ingestion
+- SQL/CSV ingestion
+- Pipeline orchestration
+- Pipeline execution
+
+The master pipeline also records execution status through the Azure SQL audit mechanism.
+
+---
+
+## M3 — Databricks Bronze / Silver Evidence
+
+```text
+evidence/M3_SILVER/
+├── 01_Bronze_to_Silver.html
+├── 01_Bronze_to_Silver.png
+└── 01_Bronze_to_Silver_2.ipynb
+```
+
+M3 demonstrates:
+
+- Bronze processing
+- Silver transformation
 - Incremental processing
+- Business-key `MERGE`
+- Data enrichment
+- Product and supplier information
+- `run_date` batch traceability
+
+The `fact_sales` grain is one row per order item.
+
+---
+
+## M4 — dbt Gold Evidence
+
+```text
+evidence/M4_GOLD_DBT/
+├── DAG_Lineage.png
+├── Screenshot 2026-09-05 012544.png
+├── Screenshot 2026-09-05 012733.png
+├── Screenshot 2026-09-05 012747.png
+├── Screenshot 2026-09-05 012927.png
+├── dbt_Sources.png
+└── dbt_test.png
+```
+
+The dbt project contains:
+
+### Staging
+
+```text
+stg_customers
+stg_marketing_spend
+stg_order_items
+stg_orders
+stg_payments
+stg_products
+stg_supplier_price_list
+```
+
+### Intermediate
+
+```text
+int_sales_enriched
+```
+
+### Marts
+
+```text
+dim_customer
+dim_date
+dim_product
+fact_sales
+fact_marketing_spend
+```
+
+### Validation
+
+```text
+13/13 dbt models passed
+18/18 dbt tests passed
+0 warnings
+0 errors
+0 skips
+```
+
+Tests include:
+
+- Not-null checks
+- Uniqueness checks
+- Relationship checks
+
+---
+
+## M5 — Nightly Automation & Idempotency Evidence
+
+```text
+evidence/M5_NIGHTLY_SYNC/
+├── Nightly Run.png
+├── idempotency_run.png
+├── idempotency_run1.png
+└── nightly_run.png
+```
+
+M5 validates:
+
+- Master batch orchestration
+- 2:00 AM trigger
+- End-to-end execution
+- Retry-safe processing
 - Idempotency
-- Scheduled orchestration
-- Microsoft Fabric integration
-- GitHub Actions CI/CD
+
+The same source state was processed twice.
+
+Verified results:
+
+| Metric | Run 1 | Run 2 |
+|---|---:|---:|
+| `fact_sales` row count | 798 | 798 |
+| Gross revenue | 2,126,260.00 | 2,126,260.00 |
+| Supplier cost | 1,363,271.87 | 1,363,271.87 |
+
+The matching results demonstrate that rerunning the same batch does not create duplicate sales records or change the financial totals.
+
+---
+
+## M6 — Microsoft Fabric Evidence
+
+```text
+evidence/M6_FABRIC/
+├── Atliq daahboard.pbix
+├── Atliq daahboard.pdf
+├── Dashboard.png
+└── Data Model.png
+```
+
+The executive dashboard includes:
+
+- Revenue trend by month
+- Top products by revenue
+- Top cities by revenue
+- Revenue by category
+
+The curated Gold data is exposed to Microsoft Fabric for analytics.
+
+---
+
+## M7 — GitHub CI/CD Evidence
+
+```text
+evidence/M7_CICD/
+├── Screenshot 2026-09-05 014222.png
+├── Screenshot 2026-09-05 141426.png
+├── Screenshot 2026-09-05 141511.png
+└── Screenshot 2026-09-05 141517.png
+```
+
+M7 demonstrates:
+
+- Git version control
+- GitHub repository
+- GitHub Actions
+- dbt CI
+- Pull-request validation
+- Databricks authentication through GitHub Secrets
+- Pipeline audit logging
+
+The ADF master pipeline records execution metadata such as pipeline name, run ID, start/end timestamps, and status.
+
+---
+
+# 🔗 Phase 1 Supporting Documentation
+
+Phase 1 also contains the detailed implementation report:
+
+```text
+Phase 1 End-to-End Batch Data Engineering_CB/
+├── README.md
+├── Cdebasics_AtliQ_End_to_End_Data_Engineering_Project_Report.docx
+└── Cdebasics_AtliQ_End_to_End_Data_Engineering_Project_Report.pdf
+```
+
+The report documents the architecture, milestones, evidence, issues, resolutions, technical learnings, and interview/client explanation.
 
 ---
 
@@ -151,69 +368,66 @@ Location:
 Phase 2 - Real Time/
 ```
 
-## Pipeline
+## Technology Stack
 
-```text
-Python Event Producer
-        ↓
-Confluent Kafka
-        ↓
-atliq.orders.events
-        ↓
-Databricks Structured Streaming
-        ↓
-Bronze
-        ↓
-Silver
-        ↓
-Gold
-```
+- Python
+- Confluent Kafka
+- Databricks Structured Streaming
+- Delta Lake
+- Unity Catalog
+- Databricks SQL
+- Apache Airflow
+- Docker
 
-## Kafka
+---
 
-Kafka topic:
+# Kafka
+
+Topic:
 
 ```text
 atliq.orders.events
 ```
 
-Kafka messages use:
+Message structure:
 
 ```text
 key   → order_id
 value → JSON event
 ```
 
-Using `order_id` as the message key keeps events for the same order associated with the same Kafka partitioning key.
+Using `order_id` as the Kafka key keeps events for the same order associated with the same partitioning key.
 
 ---
 
-# 🥉 Bronze Streaming Layer
+# Bronze Streaming
 
-Kafka events are ingested into the Bronze layer while preserving raw event information and Kafka metadata.
-
-The Bronze stream captures:
-
-- Kafka key
-- Kafka value
-- Topic
-- Partition
-- Offset
-- Timestamp
-
-Target table:
+Target:
 
 ```text
 atliq.streaming.bronze_order_events
 ```
 
+Kafka metadata preserved includes:
+
+- Key
+- Value
+- Topic
+- Partition
+- Offset
+- Timestamp
+
 ---
 
-# 🥈 Silver Streaming Layer
+# Silver Streaming
 
-The Bronze events are parsed and transformed into structured records.
+Target:
 
-The Silver layer includes:
+```text
+atliq.streaming.silver_order_events
+```
+
+Transformations include:
 
 - Explicit schema
 - JSON parsing
@@ -222,29 +436,15 @@ The Silver layer includes:
 - 10-minute watermark
 - Deduplication using `event_id`
 
-Target table:
-
-```text
-atliq.streaming.silver_order_events
-```
-
-### Deduplication
-
-Duplicate events are removed using:
-
-```text
-event_id
-```
-
-### Watermark
-
-A 10-minute watermark is used to manage late-arriving events while allowing the streaming query to maintain bounded state.
-
 ---
 
-# 🥇 Gold Streaming Layer
+# Gold Streaming
 
-The Gold stream focuses on successful payments.
+Target:
+
+```text
+atliq.streaming.gold_revenue_5min
+```
 
 Only:
 
@@ -254,26 +454,16 @@ event_type = 'payment_received'
 
 events are used for revenue aggregation.
 
-A **5-minute tumbling window** is applied.
-
-The Gold layer calculates:
+A 5-minute tumbling window calculates:
 
 - Orders paid
 - Revenue
 
-Target table:
-
-```text
-atliq.streaming.gold_revenue_5min
-```
-
-Because streaming uses event-time processing and watermarks, Gold windows can appear after the corresponding events arrive and the watermark advances sufficiently.
-
 ---
 
-# 📍 Streaming Checkpoints
+# Streaming Checkpoints
 
-Each streaming query has its own checkpoint location.
+Separate checkpoints are used for each stream:
 
 ```text
 /Volumes/atliq/streaming/checkpoints/bronze
@@ -281,21 +471,25 @@ Each streaming query has its own checkpoint location.
 /Volumes/atliq/streaming/checkpoints/gold
 ```
 
-Separate checkpoints allow each streaming stage to maintain its own processing state and progress.
+This allows each streaming stage to maintain independent processing state and progress.
 
 ---
 
-# ⚙️ Airflow Operations
+# Airflow Operations
 
-Phase 2 includes an Apache Airflow DAG:
+DAG:
 
 ```text
 atliq_streaming_ops
 ```
 
-The DAG runs hourly.
+Schedule:
 
-## DAG Structure
+```text
+Hourly
+```
+
+Task chain:
 
 ```text
 check_fresh_events
@@ -305,11 +499,9 @@ optimize_tables
 refresh_daily_summary
 ```
 
-### Data Quality
+## Data Quality
 
-The freshness check verifies that events have arrived in the Silver table within the previous two hours.
-
-If no fresh events are found, the task fails with:
+The freshness check fails when no events are available in the previous two hours:
 
 ```text
 No fresh events found in the last 2 hours
@@ -317,18 +509,11 @@ No fresh events found in the last 2 hours
 
 This failure scenario was intentionally tested.
 
-### Table Maintenance
+## Maintenance
 
-The `optimize_tables` task runs `OPTIMIZE` on the Silver and Gold streaming tables.
+`OPTIMIZE` is executed on the Silver and Gold streaming tables.
 
-### Daily Summary
-
-The final task rebuilds a daily summary containing:
-
-- Orders placed
-- Orders paid
-- Orders cancelled
-- Revenue
+## Daily Summary
 
 Target:
 
@@ -336,97 +521,33 @@ Target:
 atliq.streaming.gold_daily_summary
 ```
 
----
+Contains:
 
-# 🔄 Databricks Streaming Environment
-
-Phase 2 uses Databricks Free Edition with Unity Catalog.
-
-Catalog:
-
-```text
-atliq
-```
-
-Schema:
-
-```text
-streaming
-```
-
-Streaming tables:
-
-```text
-atliq.streaming.bronze_order_events
-atliq.streaming.silver_order_events
-atliq.streaming.gold_revenue_5min
-atliq.streaming.gold_daily_summary
-```
-
-Checkpoints are stored in a Unity Catalog Volume:
-
-```text
-atliq.streaming.checkpoints
-```
+- Orders placed
+- Orders paid
+- Orders cancelled
+- Revenue
 
 ---
 
-# 🚀 CI/CD
-
-GitHub Actions is used to validate the dbt pipeline.
-
-Workflow:
+# 📁 Phase 2 Evidence
 
 ```text
-.github/workflows/ci.yml
+Phase 2 - Real Time/evidence/
+├── dq_failure_freshness_check.png
+├── dq_failure_log.txt
+└── successful_airflow_dag_run.png
 ```
 
-The CI workflow:
+The evidence demonstrates:
 
-1. Checks out the repository
-2. Sets up Python
-3. Installs dbt
-4. Installs dbt dependencies
-5. Validates Databricks connection configuration
-6. Runs `dbt build`
-
-Databricks credentials are provided through **GitHub Secrets** rather than being stored in the repository.
+- Successful Airflow execution
+- Data-quality failure when the producer is stopped
+- Freshness validation behavior
 
 ---
 
-# 🔐 Security
-
-Sensitive credentials are intentionally excluded from Git.
-
-The root `.gitignore` excludes:
-
-```text
-.env
-*.env
-```
-
-Real API keys, passwords, and Databricks tokens must never be committed.
-
-Example configuration files such as:
-
-```text
-.env.example
-```
-
-contain placeholders rather than real credentials.
-
-### Security Principles
-
-- Never commit API keys
-- Never commit passwords
-- Never commit Databricks tokens
-- Use environment variables for local secrets
-- Use GitHub Secrets for CI/CD credentials
-- Rotate credentials if they are accidentally exposed
-
----
-
-# 📂 Repository Structure
+# 📂 Complete Repository Structure
 
 ```text
 AtliQ-Commerce-End-to-End-Capstone/
@@ -436,9 +557,19 @@ AtliQ-Commerce-End-to-End-Capstone/
 │       └── ci.yml
 │
 ├── Phase 1 End-to-End Batch Data Engineering_CB/
+│   │
+│   ├── evidence/
+│   │   ├── M1_OLTP/
+│   │   ├── M2_ADF/
+│   │   ├── M3_SILVER/
+│   │   ├── M4_GOLD_DBT/
+│   │   ├── M5_NIGHTLY_SYNC/
+│   │   ├── M6_FABRIC/
+│   │   └── M7_CICD/
+│   │
 │   ├── dbt_project/
 │   ├── sql/
-│   ├── evidence/
+│   ├── python/
 │   ├── M1_OLTP/
 │   ├── M2_ADF/
 │   ├── M3_SILVER/
@@ -447,7 +578,8 @@ AtliQ-Commerce-End-to-End-Capstone/
 │   ├── M6_FABRIC/
 │   ├── M7_CICD/
 │   ├── README.md
-│   └── ...
+│   ├── Cdebasics_AtliQ_End_to_End_Data_Engineering_Project_Report.docx
+│   └── Cdebasics_AtliQ_End_to_End_Data_Engineering_Project_Report.pdf
 │
 ├── Phase 2 - Real Time/
 │   ├── airflow/
@@ -462,26 +594,51 @@ AtliQ-Commerce-End-to-End-Capstone/
 
 ---
 
-# 📊 Phase 1 — Project Status
+# 🔐 Security
+
+Sensitive credentials are excluded from Git.
+
+The repository ignores:
+
+```text
+.env
+*.env
+```
+
+Real credentials must never be committed.
+
+Examples such as:
+
+```text
+.env.example
+```
+
+contain placeholders only.
+
+Databricks CI credentials are supplied through GitHub Secrets.
+
+---
+
+# 📊 Project Status
+
+## Phase 1
 
 | Component | Status |
 |---|---|
-| Source / OLTP | ✅ Complete |
-| Azure Data Factory | ✅ Complete |
+| OLTP | ✅ Complete |
+| ADF Ingestion | ✅ Complete |
 | ADLS Gen2 | ✅ Complete |
 | Databricks Bronze | ✅ Complete |
 | Databricks Silver | ✅ Complete |
 | dbt Gold | ✅ Complete |
 | Data Quality | ✅ Complete |
 | Incremental Processing | ✅ Complete |
-| Idempotency | ✅ Complete |
+| Idempotency | ✅ Verified |
 | Nightly Orchestration | ✅ Complete |
 | Microsoft Fabric | ✅ Complete |
 | CI/CD | ✅ Complete |
 
----
-
-# 📡 Phase 2 — Project Status
+## Phase 2
 
 | Component | Status |
 |---|---|
@@ -495,49 +652,55 @@ AtliQ-Commerce-End-to-End-Capstone/
 | Separate Checkpoints | ✅ Complete |
 | Airflow DAG | ✅ Complete |
 | Successful DAG Run | ✅ Tested |
-| Data Quality Failure Scenario | ✅ Tested |
+| DQ Failure Scenario | ✅ Tested |
 
 ---
 
-# 🎯 Learning Objectives
+# 🎯 Key Learning Outcomes
 
-This project demonstrates how a modern data platform can combine:
+This project demonstrates how a modern data platform combines:
 
 ```text
-Batch Data Engineering
-        +
-Real-Time Data Engineering
-        +
+Batch Processing
+       +
+Real-Time Processing
+       +
 Data Transformation
-        +
+       +
 Data Quality
-        +
+       +
+Incremental Processing
+       +
+Idempotency
+       +
 Orchestration
-        +
+       +
+Analytics
+       +
 CI/CD
 ```
 
-The objective is not only to build individual pipelines, but to understand how different data engineering components work together in an end-to-end architecture.
+The project also demonstrates why different technologies are used for different responsibilities:
+
+- **ADF** → ingestion and orchestration
+- **ADLS Gen2** → durable cloud storage
+- **Databricks** → distributed transformation and streaming
+- **dbt** → SQL transformation, testing and documentation
+- **Kafka** → event streaming
+- **Airflow** → scheduled operational workflows
+- **Fabric / Power BI** → analytics and visualization
+- **GitHub Actions** → CI/CD
 
 ---
 
-# 📚 Documentation
+# ⚠️ Known Scope Items
 
-Detailed documentation for each phase is available inside the respective project folders.
+Two Phase 1 enhancements were intentionally left as future work rather than presented as completed:
 
-### Phase 1
+1. **New vs. Returning Customers** dashboard view
+2. **Automated failure alerting** for the nightly pipeline
 
-```text
-Phase 1 End-to-End Batch Data Engineering_CB/README.md
-```
-
-### Phase 2
-
-```text
-Phase 2 - Real Time/Phase2_Writeup.md
-```
-
-Additional implementation evidence and screenshots are available inside the `evidence` folders.
+These are documented as follow-up enhancements.
 
 ---
 
