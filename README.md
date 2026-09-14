@@ -105,6 +105,8 @@ Running heavy analytical queries directly against the live OLTP database risks d
 
 Phase 1 is the core analytical platform: a nightly batch pipeline that takes operational data from Azure SQL and CSV sources, moves it through a medallion architecture, and exposes a governed, tested Gold layer to Power BI / Microsoft Fabric.
 
+📎 [**View Phase 1 in detail →**](https://github.com/Jaideepgupta/atliq-capstone-data-engineering)
+
 ## Phase 1 Architecture
 
 ![AtliQ Commerce Phase 1 Architecture](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/atliq_commerce_architecture.svg)
