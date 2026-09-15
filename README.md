@@ -105,6 +105,8 @@ Running heavy analytical queries directly against the live OLTP database risks d
 
 Phase 1 is the core analytical platform: a nightly batch pipeline that takes operational data from Azure SQL and CSV sources, moves it through a medallion architecture, and exposes a governed, tested Gold layer to Power BI / Microsoft Fabric.
 
+📎 [**View Phase 1 in detail →**](https://github.com/Jaideepgupta/atliq-capstone-data-engineering)
+
 ## Phase 1 Architecture
 
 ![AtliQ Commerce Phase 1 Architecture](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/atliq_commerce_architecture.svg)
@@ -376,19 +378,7 @@ Secrets are never hard-coded in the repository.
 
 **Pipeline audit logging:** The ADF master pipeline includes `Audit Start` and `Audit End` stored-procedure activities. These write execution metadata — pipeline name, run ID, start/end timestamps, status — to the Azure SQL audit table via `[etl].[usp_log_pipeline_audit]`.
 
-**Repository layout** — `.github/workflows` and the full `dbt_project` (models, macros, seeds, snapshots, tests) at the repo root:
-
-![atliq-capstone-data-engineering repo root](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/evidence/M7_CICD/Screenshot%202026-09-05%20141426.png)
-
-**Workflow file location** — `.github/workflows/ci.yml` alongside the dbt project it tests:
-
-![ci.yml location in .github/workflows](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/evidence/M7_CICD/Screenshot%202026-09-05%20141511.png)
-
-**Workflow run history** — `dbt-ci` triggered on pull requests against the `ci-test` branch:
-
-![GitHub Actions dbt-ci run history](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/evidence/M7_CICD/Screenshot%202026-09-05%20014222.png)
-
-CI/CD evidence: `Phase 1 End-to-End Batch Data Engineering_CB/evidence/M7_CICD/`
+CI/CD evidence — repo layout, the `ci.yml` workflow file, and Actions run history — is in `Phase 1 End-to-End Batch Data Engineering_CB/evidence/M7_CICD/` and shown below in the [Evidence Gallery](#-phase-1-evidence-gallery).
 
 ## 🖼️ Phase 1 Evidence Gallery
 
@@ -429,8 +419,13 @@ CI/CD evidence: `Phase 1 End-to-End Batch Data Engineering_CB/evidence/M7_CICD/`
 
 **M7 – CI/CD**
 
+Repository layout — `.github/workflows` and the full `dbt_project` at the repo root:
 ![atliq-capstone-data-engineering repo root](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/evidence/M7_CICD/Screenshot%202026-09-05%20141426.png)
+
+Workflow file location — `.github/workflows/ci.yml` alongside the dbt project it tests:
 ![ci.yml location in .github/workflows](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/evidence/M7_CICD/Screenshot%202026-09-05%20141511.png)
+
+Workflow run history — `dbt-ci` triggered on pull requests against the `ci-test` branch:
 ![GitHub Actions dbt-ci run history](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/evidence/M7_CICD/Screenshot%202026-09-05%20014222.png)
 
 [Open all M7 CI/CD evidence →](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/evidence/M7_CICD/)
