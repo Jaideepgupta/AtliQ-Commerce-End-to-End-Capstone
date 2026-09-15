@@ -73,7 +73,7 @@ The repository includes implementation code, pipeline exports, dashboard artifac
 ## 🧭 What This Project Demonstrates
 
 | Area | Demonstrated by |
-| --- | --- |
+|---|---|
 | **Data modeling** | Normalized OLTP schema in Azure SQL → dimensional star schema in Gold |
 | **Orchestration** | Metadata/control-table-driven ADF pipelines instead of one pipeline per table |
 | **Distributed processing** | Databricks Bronze → Silver transformation, enrichment, incremental MERGE |
@@ -104,8 +104,6 @@ Running heavy analytical queries directly against the live OLTP database risks d
 # 🔵 Phase 1 — Batch Data Engineering
 
 Phase 1 is the core analytical platform: a nightly batch pipeline that takes operational data from Azure SQL and CSV sources, moves it through a medallion architecture, and exposes a governed, tested Gold layer to Power BI / Microsoft Fabric.
-
-📎 [**View Phase 1 in detail →**](https://github.com/Jaideepgupta/atliq-capstone-data-engineering)
 
 ## Phase 1 Architecture
 
@@ -176,7 +174,7 @@ Azure Data Factory handles source extraction and orchestration.
 **Main pipelines:**
 
 | Pipeline | Role |
-| --- | --- |
+|---|---|
 | `pl_sql_to_raw` | SQL extraction and raw ingestion flow |
 | `pl_sql_to_adls` | Landing/orchestration flow for ADLS-oriented Bronze storage |
 | `pl_master_batch` | Master pipeline coordinating the end-to-end batch process; also records pipeline execution status through an Azure SQL audit procedure |
@@ -250,7 +248,7 @@ atliq.fabric_gold
 **Gold model grain:** ⭐ one row per order item
 
 | Layer | Models |
-| --- | --- |
+|---|---|
 | **Dimensions** | `dim_customer`, `dim_product`, `dim_date` |
 | **Facts** | `fact_sales`, `fact_marketing_spend` |
 | **Intermediate** | `int_sales_enriched` |
@@ -265,7 +263,7 @@ Staging and intermediate models are materialized as **views** in `atliq.gold`; a
 <div align="center">
 
 | Metric | Result |
-| --- | --- |
+|---|---:|
 | **Models** | 13 / 13 passed |
 | **Tests** | 18 / 18 passed |
 | **Sources** | 7 |
@@ -294,7 +292,7 @@ dbt evidence: `Phase 1 End-to-End Batch Data Engineering_CB/evidence/M4_GOLD_DBT
 ## 🔍 Data Quality & Reconciliation
 
 | Check | Result |
-| --- | --- |
+|---|---:|
 | Customer duplicate check | 0 |
 | Product duplicate check | 0 |
 | Fact order-item uniqueness | 0 |
@@ -338,7 +336,7 @@ Nightly execution evidence: `Phase 1 End-to-End Batch Data Engineering_CB/eviden
 The complete `pl_master_batch` pipeline was executed **twice** against the same source state. Results below were captured from `atliq.gold.fact_sales` after each full run:
 
 | Metric | Run 1 | Run 2 | Result |
-| --- | --- | --- | --- |
+|---|---:|---:|:---:|
 | `fact_sales` row count | 798 | 798 | ✅ Match |
 | Total `gross_revenue` | 2,126,260.00 | 2,126,260.00 | ✅ Match |
 | Total supplier cost of sold units (`quantity × supplier_cost`) | 1,363,271.87 | 1,363,271.87 | ✅ Match |
@@ -360,8 +358,6 @@ The Gold layer is exposed to Microsoft Fabric through the project's Fabric/OneLa
 
 Dashboard artifacts and evidence: `Phase 1 End-to-End Batch Data Engineering_CB/evidence/M6_FABRIC/` (includes the editable Power BI/Fabric report, PDF export, dashboard screenshot and data-model screenshot).
 
-> 📝 **Not yet implemented:** a customer cohort view (cohort by signup month vs. first/repeat purchase month).
-
 ## ⚙️ CI/CD – GitHub Actions
 
 The dbt project is integrated with GitHub Actions.
@@ -379,6 +375,18 @@ The dbt project is integrated with GitHub Actions.
 Secrets are never hard-coded in the repository.
 
 **Pipeline audit logging:** The ADF master pipeline includes `Audit Start` and `Audit End` stored-procedure activities. These write execution metadata — pipeline name, run ID, start/end timestamps, status — to the Azure SQL audit table via `[etl].[usp_log_pipeline_audit]`.
+
+**Repository layout** — `.github/workflows` and the full `dbt_project` (models, macros, seeds, snapshots, tests) at the repo root:
+
+![atliq-capstone-data-engineering repo root](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/evidence/M7_CICD/Screenshot%202026-09-05%20141426.png)
+
+**Workflow file location** — `.github/workflows/ci.yml` alongside the dbt project it tests:
+
+![ci.yml location in .github/workflows](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/evidence/M7_CICD/Screenshot%202026-09-05%20141511.png)
+
+**Workflow run history** — `dbt-ci` triggered on pull requests against the `ci-test` branch:
+
+![GitHub Actions dbt-ci run history](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/evidence/M7_CICD/Screenshot%202026-09-05%20014222.png)
 
 CI/CD evidence: `Phase 1 End-to-End Batch Data Engineering_CB/evidence/M7_CICD/`
 
@@ -421,7 +429,11 @@ CI/CD evidence: `Phase 1 End-to-End Batch Data Engineering_CB/evidence/M7_CICD/`
 
 **M7 – CI/CD**
 
-GitHub Actions screenshots and supporting evidence: [Open all M7 CI/CD evidence →](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/evidence/M7_CICD/)
+![atliq-capstone-data-engineering repo root](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/evidence/M7_CICD/Screenshot%202026-09-05%20141426.png)
+![ci.yml location in .github/workflows](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/evidence/M7_CICD/Screenshot%202026-09-05%20141511.png)
+![GitHub Actions dbt-ci run history](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/evidence/M7_CICD/Screenshot%202026-09-05%20014222.png)
+
+[Open all M7 CI/CD evidence →](Phase%201%20End-to-End%20Batch%20Data%20Engineering_CB/evidence/M7_CICD/)
 
 ---
 
@@ -456,7 +468,7 @@ Freshness Check → OPTIMIZE → Daily Summary
 **Components:**
 
 | Component | Purpose |
-| --- | --- |
+|---|---|
 | Python Event Producer | Generates AtliQ order events |
 | Confluent Cloud Kafka | Transports order events |
 | Databricks Structured Streaming | Processes the event stream |
@@ -579,7 +591,7 @@ Full write-up: [`Phase 2 - Real Time/Phase2_Writeup.md`](Phase%202%20-%20Real%20
 ## 📡 Phase 2 — Real-Time Project Status
 
 | Component | Status |
-| --- | --- |
+|---|---|
 | Kafka Producer | ✅ Complete |
 | Kafka Topic | ✅ Complete |
 | Bronze Streaming | ✅ Complete |
@@ -599,7 +611,7 @@ Full write-up: [`Phase 2 - Real Time/Phase2_Writeup.md`](Phase%202%20-%20Real%20
 Phase 1 and Phase 2 are **intentionally documented, stored and deployed independently**. Phase 2 does not replace or modify the Phase 1 batch pipeline — it demonstrates how a real-time lane can operate alongside an existing batch platform.
 
 | | Phase 1 — Batch | Phase 2 — Real-Time |
-| --- | --- | --- |
+|---|---|---|
 | **Cadence** | Nightly batch | Continuous / hourly ops |
 | **Ingestion** | Azure Data Factory (metadata-driven) | Python producer → Confluent Kafka |
 | **Processing engine** | Azure Databricks (batch) | Azure Databricks Structured Streaming |
@@ -633,6 +645,7 @@ AtliQ-Commerce-End-to-End-Capstone/
 │   │   ├── M5_NIGHTLY_SYNC/
 │   │   ├── M6_FABRIC/
 │   │   └── M7_CICD/
+│   │       └── Screenshot 2026-09-05 014222.png
 │   ├── atliq_commerce_architecture.svg
 │   ├── Cdebasics_AtliQ_End_to_End_Data_Engineering_Project_Report.pdf
 │   ├── Cdebasics_AtliQ_End_to_End_Data_Engineering_Project_Report.docx
@@ -714,7 +727,7 @@ Nightly batch remains the right fit for governed, dimensionally-modeled executiv
 # 🛠️ Issues Faced & Resolutions
 
 | Issue | Resolution |
-| --- | --- |
+|---|---|
 | **PowerShell execution policy** blocked local dbt activation/scripts | Used a process-scoped PowerShell execution-policy change |
 | **dbt–Databricks connection** initially misconfigured | Corrected environment variables and Databricks host config; validated with `dbt debug` |
 | **Credential exposure** — a Databricks token was accidentally exposed during troubleshooting | Credential was rotated immediately; secrets now live only in environment variables and GitHub Secrets |
